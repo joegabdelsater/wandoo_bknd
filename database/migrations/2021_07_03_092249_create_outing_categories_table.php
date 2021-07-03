@@ -16,7 +16,7 @@ class CreateOutingCategoriesTable extends Migration
         Schema::create('outing_categories', function (Blueprint $table) {
             $table->id();
             $table->foreignId('outing_id')->onDelete('CASCADE');
-            $table->foreignId('user_id')->onDelete('CASCADE');
+            $table->foreignId('category_id')->onDelete('CASCADE');
             $table->timestamps();
         });
     }

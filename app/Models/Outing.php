@@ -12,4 +12,8 @@ class Outing extends Model
     public function guests() {
         return $this->hasMany(OutingGuest::class);
     }
+
+    public function categories() {
+        return $this->belongsToMany(Category::class, "outing_categories");
+    }
 }
