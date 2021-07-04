@@ -32,18 +32,18 @@ Route::group(['middleware' => ['cors']], function () {
     /** DONE Categories route */
     Route::get('/categories', [CategoryController::class, 'index']);
 });
+
 Route::group(['middleware' => ['auth:api', 'cors']], function () {
     /** DONE Auth Routes */
     Route::post('/logout', [ApiAuthController::class, 'logout'])->name('logout.api');
-    
+
     /** Done Categories */
-    Route::get('/category/{category}/outings', [ CategoryController::class ,"show"]);
+    Route::get('/category/{category}/outings', [CategoryController::class, "show"]);
 
     /** outings */
     Route::get('/outings', [OutingController::class, 'index']); //Done
-    Route::get('/outing/{outing}', [OutingController::class, 'show']);
+    Route::get('/outing/{outing}', [OutingController::class, 'show']); //Done
     Route::post('/outing', [OutingController::class, 'store']);
-
 
     /** user profile */
     Route::get('/profile', [UserController::class, 'index']);

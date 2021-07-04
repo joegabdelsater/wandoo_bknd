@@ -4,8 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Outing;
 use App\Models\OutingGuest;
-use App\Models\User;
-// use App\Models\UserFriends;
 use App\Classes\Friendship;
 
 
@@ -40,12 +38,12 @@ class OutingController extends Controller
         //outings which is for all friends
         $friendship = new Friendship();
         $friends = $friendship->getFriends($userId)->pluck('id');
-        $friendsOutings = Outing::where('join_status', 'friends')->whereIn('user_id',$friends)->with('categories','user')->get();
+        $friendsOutings = Outing::where('join_status', 'friends')->whereIn('user_id', $friends)->with('categories', 'user')->get();
 
 
         $outings = $publicOutings->concat($invitationOutings)->concat($friendsOutings);
         $sortedOutings = $outings->sortByDesc('date');
-      
+
         return response($sortedOutings->values()->all(), 200);
     }
 
@@ -58,7 +56,19 @@ class OutingController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $valid = $request->validate([
+            "title" => "required|max:255|string",
+            "description" => "nullable|string",
+            "date" => "date|required",
+            "join_status" => "string|required"
+            //need to add categories
+            //need to add guests
+        ]);
+
+        $valid['user_id'] = Auth::guard('api')->id();
+        Outing::create($valid);
+
+        return response(["message" => "Outing successfully created!"], 200);
     }
 
     /**
@@ -70,7 +80,7 @@ class OutingController extends Controller
     public function show(Outing $outing)
     {
         $outing = Outing::with(['categories', 'user'])->find($outing->id);
-        return response($outing,200);
+        return response($outing, 200);
     }
 
 

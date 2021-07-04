@@ -9,6 +9,7 @@ class Outing extends Model
 {
     use HasFactory;
 
+    protected $guarded = ['id'];
     public function guests() {
         return $this->hasMany(OutingGuest::class);
     }
