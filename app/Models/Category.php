@@ -10,6 +10,6 @@ class Category extends Model
     use HasFactory;
 
     public function outings() {
-        return $this->hasMany(Outing::class);
+        return $this->belongsToMany(Outing::class, 'outing_categories');
     }
 }

@@ -6,7 +6,7 @@ use App\Http\Controllers\Auth\ApiAuthController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\OutingController;
 use App\Http\Controllers\UserFriendController;
-use App\Models\UserFriend;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -35,11 +35,15 @@ Route::group(['middleware' => ['cors']], function () {
 Route::group(['middleware' => ['auth:api', 'cors']], function () {
     /** DONE Auth Routes */
     Route::post('/logout', [ApiAuthController::class, 'logout'])->name('logout.api');
- 
+    
+    /** Done Categories */
+    Route::get('/category/{category}/outings', [ CategoryController::class ,"show"]);
+
     /** outings */
+    Route::get('/outings', [OutingController::class, 'index']); //Done
+    Route::get('/outing/{outing}', [OutingController::class, 'show']);
     Route::post('/outing', [OutingController::class, 'store']);
-    Route::get('/outings', [OutingController::class, 'index']);
-    Route::post('/outing/{categoryId}', [OutingController::class, 'show']);
+
 
     /** user profile */
     Route::get('/profile', [UserController::class, 'index']);

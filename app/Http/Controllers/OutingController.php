@@ -69,7 +69,8 @@ class OutingController extends Controller
      */
     public function show(Outing $outing)
     {
-        //
+        $outing = Outing::with(['categories', 'user'])->find($outing->id);
+        return response($outing,200);
     }
 
 
