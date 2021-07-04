@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\UserFriend;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class UserFriendController extends Controller
 {
@@ -14,17 +15,25 @@ class UserFriendController extends Controller
      */
     public function index()
     {
-        //
-    }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
+        $userId =  Auth::guard('api')->id();
+
+        $_friends = UserFriend::where('user_id', $userId)
+            ->orWhere('friend_id', $userId)
+            ->with(['user', 'friend'])
+            ->get();
+
+
+
+        $friends = $_friends->map(function ($friend) use ($userId) {
+            if ($friend->friend_id == $userId) {
+                return $friend->user;
+            } else {
+                return $friend->friend;
+            }
+        });
+
+        return response($friends, 200);
     }
 
     /**
@@ -35,41 +44,20 @@ class UserFriendController extends Controller
      */
     public function store(Request $request)
     {
-        //
-    }
+        $userId =  Auth::guard('api')->id();
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\UserFriend  $userFriend
-     * @return \Illuminate\Http\Response
-     */
-    public function show(UserFriend $userFriend)
-    {
-        //
-    }
+        $valid = $request->validate([
+            "friend_id" => "required|numeric|exists:users,id"
+        ]);
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\UserFriend  $userFriend
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(UserFriend $userFriend)
-    {
-        //
-    }
+        UserFriend::create([
+            "user_id" => $userId,
+            "friend_id" => $valid["friend_id"]
+        ]);
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\UserFriend  $userFriend
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, UserFriend $userFriend)
-    {
-        //
+        return response([
+            "message" => "friendship created"
+        ], 200);
     }
 
     /**
@@ -80,6 +68,8 @@ class UserFriendController extends Controller
      */
     public function destroy(UserFriend $userFriend)
     {
-        //
+
+        $userFriend->delete();
+        return response(["message" => "friendship removed"], 200);
     }
 }

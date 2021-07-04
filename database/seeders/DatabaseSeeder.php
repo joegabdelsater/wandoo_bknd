@@ -14,7 +14,7 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         // \App\Models\User::factory(10)->create();
-        \App\Models\Category::factory(10)
+        $categories = \App\Models\Category::factory(10)
             ->create()
             ->each(function ($category) {
                 \App\Models\Outing::factory(3)
@@ -24,10 +24,27 @@ class DatabaseSeeder extends Seeder
                     });
             });
 
-        $users = \App\Models\User::all(); 
+        $users = \App\Models\User::all();
 
-        $users->each(function($user){
+        $users->each(function ($user) use ($users, $categories) {
+            $friends = $users->whereNotIn([$user->id], 'id')->random(3);
+            $cats = $categories->whereNotIn([$user->id], 'id')->random(3);
 
+            /** create user categories */
+            $cats->each(function ($cat) use ($user) {
+                \App\Models\UserCategory::create([
+                    "user_id" => $user->id,
+                    "category_id" => $cat->id
+                ]);
+            });
+
+            /** create friends */
+            $friends->each(function ($friend) use ($user) {
+                \App\Models\UserFriend::create([
+                    "user_id" => $user->id,
+                    "friend_id" => $friend->id
+                ]);
+            });
         });
     }
 }
