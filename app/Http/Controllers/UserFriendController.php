@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\UserFriend;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Classes\Friendship;
 
 class UserFriendController extends Controller
 {
@@ -17,21 +18,9 @@ class UserFriendController extends Controller
     {
 
         $userId =  Auth::guard('api')->id();
+        $friendship = new Friendship();
 
-        $_friends = UserFriend::where('user_id', $userId)
-            ->orWhere('friend_id', $userId)
-            ->with(['user', 'friend'])
-            ->get();
-
-
-
-        $friends = $_friends->map(function ($friend) use ($userId) {
-            if ($friend->friend_id == $userId) {
-                return $friend->user;
-            } else {
-                return $friend->friend;
-            }
-        });
+        $friends = $friendship->getFriends($userId);
 
         return response($friends, 200);
     }

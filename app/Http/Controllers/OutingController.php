@@ -3,7 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Outing;
+use App\Models\OutingGuest;
+use App\Models\User;
+// use App\Models\UserFriends;
+use App\Classes\Friendship;
+
+
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class OutingController extends Controller
 {
@@ -14,18 +21,34 @@ class OutingController extends Controller
      */
     public function index()
     {
-        //
+        //status is public and fits my interests
+        //status for friends and I am that persons friend
+        //status public and fits my interest
+
+        $categoriesIds =  Auth::guard('api')->user()->categories->pluck('id');
+        $userId = Auth::guard('api')->id();
+
+        //public outings which fit my category
+        $publicOutings = Outing::whereHas('categories', function ($query) use ($categoriesIds) {
+            $query->whereIn('categories.id', $categoriesIds)->where('join_status', 'public');
+        })
+            ->with('categories', 'user')->get();
+
+        //outings to which I am invited
+        $invitationOutings =  OutingGuest::where('user_id', $userId)->with('outing.user', 'outing.categories')->get()->pluck('outing');
+
+        //outings which is for all friends
+        $friendship = new Friendship();
+        $friends = $friendship->getFriends($userId)->pluck('id');
+        $friendsOutings = Outing::where('join_status', 'friends')->whereIn('user_id',$friends)->with('categories','user')->get();
+
+
+        $outings = $publicOutings->concat($invitationOutings)->concat($friendsOutings);
+        $sortedOutings = $outings->sortByDesc('date');
+      
+        return response($sortedOutings->values()->all(), 200);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
 
     /**
      * Store a newly created resource in storage.
@@ -49,16 +72,6 @@ class OutingController extends Controller
         //
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Outing  $outing
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Outing $outing)
-    {
-        //
-    }
 
     /**
      * Update the specified resource in storage.

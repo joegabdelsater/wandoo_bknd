@@ -25,29 +25,27 @@ use App\Models\UserFriend;
 
 
 Route::group(['middleware' => ['cors']], function () {
-    /** Auth Routes */
-    Route::post('/login', [ApiAuthController::class,'login'])->name('login.api');
-    Route::post('/register',[ApiAuthController::class,'register'])->name('register.api');
-Route::get('/categories', [CategoryController::class, 'index']);
+    /** DONE Auth Routes */
+    Route::post('/login', [ApiAuthController::class, 'login'])->name('login.api');
+    Route::post('/register', [ApiAuthController::class, 'register'])->name('register.api');
 
+    /** DONE Categories route */
+    Route::get('/categories', [CategoryController::class, 'index']);
 });
-Route::group(['middleware' => ['api', 'cors']], function () {
-    /** Auth Routes */
-    Route::post('/logout', [ApiAuthController::class,'logout'])->name('logout.api');
-
+Route::group(['middleware' => ['auth:api', 'cors']], function () {
+    /** DONE Auth Routes */
+    Route::post('/logout', [ApiAuthController::class, 'logout'])->name('logout.api');
+ 
     /** outings */
     Route::post('/outing', [OutingController::class, 'store']);
-    Route::get('/outing', [OutingController::class, 'index']);
-    Route::post('/outing/{categoryId}', [OutingController::class, 'find']);
-
-    /** categories */
+    Route::get('/outings', [OutingController::class, 'index']);
+    Route::post('/outing/{categoryId}', [OutingController::class, 'show']);
 
     /** user profile */
-    Route::get('/profile', [UserController::class,'index']);
+    Route::get('/profile', [UserController::class, 'index']);
 
-    /** friends */
+    /** DONE friends */
     Route::get('/friends', [UserFriendController::class, 'index']);
     Route::post('/friends', [UserFriendController::class, 'store']);
     Route::delete('/friends/{userFriend}', [UserFriendController::class, 'destroy']);
-
 });

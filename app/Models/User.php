@@ -51,4 +51,12 @@ class User extends Authenticatable
         return $this->hasMany(UserFriend::class);
     }
 
+    // public function friendsOutings() {
+    //     return $this->friends()->with('outings');
+    // }
+
+    public function categories() {
+        return $this->belongsToMany(Category::class, 'user_categories');
+    }
+
 }
